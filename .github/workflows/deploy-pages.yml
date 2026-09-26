@@ -1,0 +1,65 @@
+name: Deploy optimized portfolio
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the current portfolio
+        run: |
+          mkdir -p site
+          wget             --mirror             --page-requisites             --convert-links             --adjust-extension             --no-parent             --no-host-directories             --directory-prefix site             https://rui-portfolio-2026.liaosirui3.chatgpt.site/
+          printf 'liaosirui.online\n' > site/CNAME
+          touch site/.nojekyll
+
+      - name: Install image optimizer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webp
+
+      - name: Optimize still images
+        shell: bash
+        run: |
+          find site -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 |
+          while IFS= read -r -d '' image; do
+            old_name="${image##*/}"
+            new_file="${image}.webp"
+            new_name="${old_name}.webp"
+            if cwebp -quiet -q 78 -m 6 "$image" -o "$new_file"; then
+              export RUI_OLD="$old_name"
+              export RUI_NEW="$new_name"
+              find site -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \)                 -exec perl -pi -e 's/\Q$ENV{RUI_OLD}\E/$ENV{RUI_NEW}/g' {} +
+              rm "$image"
+            fi
+          done
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v4
