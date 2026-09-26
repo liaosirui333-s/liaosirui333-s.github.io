@@ -25,9 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download the current portfolio
+        shell: bash
         run: |
           mkdir -p site
-          wget             --mirror             --page-requisites             --convert-links             --adjust-extension             --no-parent             --no-host-directories             --directory-prefix site             https://rui-portfolio-2026.liaosirui3.chatgpt.site/
+          wget --mirror --page-requisites --convert-links --adjust-extension --no-parent --no-host-directories --directory-prefix site https://rui-portfolio-2026.liaosirui3.chatgpt.site/ || true
+          test -f site/index.html
           printf 'liaosirui.online\n' > site/CNAME
           touch site/.nojekyll
 
@@ -47,7 +49,7 @@ jobs:
             if cwebp -quiet -q 78 -m 6 "$image" -o "$new_file"; then
               export RUI_OLD="$old_name"
               export RUI_NEW="$new_name"
-              find site -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \)                 -exec perl -pi -e 's/\Q$ENV{RUI_OLD}\E/$ENV{RUI_NEW}/g' {} +
+              find site -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \) -exec perl -pi -e 's/\Q$ENV{RUI_OLD}\E/$ENV{RUI_NEW}/g' {} +
               rm "$image"
             fi
           done
