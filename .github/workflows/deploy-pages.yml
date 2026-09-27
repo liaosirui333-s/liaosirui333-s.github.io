@@ -24,14 +24,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Download the current portfolio
+      - name: Download the landing page and portfolio
         shell: bash
         run: |
           mkdir -p site
           wget --page-requisites --convert-links --adjust-extension --no-host-directories --directory-prefix site \
+            https://rui-portfolio-2026.liaosirui3.chatgpt.site/ \
             https://rui-portfolio-2026.liaosirui3.chatgpt.site/index2 || true
+          test -f site/index.html
           test -f site/index2.html
-          cp site/index2.html site/index.html
           printf 'liaosirui.online\n' > site/CNAME
           touch site/.nojekyll
 
