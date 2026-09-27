@@ -36,7 +36,7 @@ jobs:
           mkdir -p site/projects
           cp site/index2.html site/projects/index.html
           perl -pi -e 's#<head>#<head>\n    <base href="/">#' site/projects/index.html
-          perl -pi -e 's#https://rui-portfolio-2026\\.liaosirui3\\.chatgpt\\.site/index2\\.html#projects/#g' site/index.html
+          perl -pi -e 's|\Qhttps://rui-portfolio-2026.liaosirui3.chatgpt.site/index2.html\E|projects/|g' site/index.html
           printf 'liaosirui.online\n' > site/CNAME
           touch site/.nojekyll
 
