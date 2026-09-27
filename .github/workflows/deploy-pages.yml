@@ -33,6 +33,7 @@ jobs:
             https://rui-portfolio-2026.liaosirui3.chatgpt.site/index2 || true
           test -f site/index.html
           test -f site/index2.html
+          perl -pi -e 's#https://rui-portfolio-2026\\.liaosirui3\\.chatgpt\\.site/index2\\.html#index2.html#g' site/index.html
           printf 'liaosirui.online\n' > site/CNAME
           touch site/.nojekyll
 
