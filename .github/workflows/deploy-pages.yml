@@ -31,6 +31,9 @@ jobs:
           wget --page-requisites --convert-links --adjust-extension --no-host-directories --directory-prefix site \
             https://rui-portfolio-2026.liaosirui3.chatgpt.site/ \
             https://rui-portfolio-2026.liaosirui3.chatgpt.site/index2 || true
+          mkdir -p site/js
+          wget -q -O site/js/three.module.js https://rui-portfolio-2026.liaosirui3.chatgpt.site/js/three.module.js
+          test -s site/js/three.module.js
           test -f site/index.html
           test -f site/index2.html
           mkdir -p site/projects
