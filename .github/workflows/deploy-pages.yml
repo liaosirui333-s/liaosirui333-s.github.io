@@ -53,16 +53,41 @@ jobs:
         run: |
           find site -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 |
           while IFS= read -r -d '' image; do
-            old_name="${image##*/}"
-            new_file="${image}.webp"
-            new_name="${old_name}.webp"
-            if cwebp -quiet -q 78 -m 6 "$image" -o "$new_file"; then
-              export RUI_OLD="$old_name"
-              export RUI_NEW="$new_name"
-              find site -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \) -exec perl -pi -e 's/\Q$ENV{RUI_OLD}\E/$ENV{RUI_NEW}/g' {} +
-              rm "$image"
-            fi
+            cwebp -quiet -q 78 -m 6 "$image" -o "${image}.webp"
           done
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.parse import quote
+          import re
+
+          root = Path("site")
+          origin = "https://rui-portfolio-2026.liaosirui3.chatgpt.site/"
+          replacements = {}
+          for converted in root.rglob("*.webp"):
+              original = Path(str(converted)[:-5])
+              if not original.is_file():
+                  continue
+              old = original.relative_to(root).as_posix()
+              new = "/" + quote(converted.relative_to(root).as_posix())
+              # Match complete paths, never a basename shared by other folders.
+              for path in (old, quote(old)):
+                  replacements[path] = new
+                  replacements["/" + path] = new
+                  replacements[origin + path] = new
+
+          pattern = re.compile(
+              r"(?<![A-Za-z0-9_./%:-])(?:"
+              + "|".join(re.escape(key) for key in sorted(replacements, key=len, reverse=True))
+              + r")(?![A-Za-z0-9_./%:-])"
+          )
+          for page in root.rglob("*"):
+              if page.is_file() and page.suffix in {".html", ".css", ".js"}:
+                  source = page.read_text()
+                  # One pass prevents .webp.webp, even with duplicate basenames.
+                  page.write_text(pattern.sub(lambda match: replacements[match.group()], source))
+          # Keep originals for metadata URLs, dynamic references, and old caches.
+          print(f"Updated {len(replacements)} exact image paths; originals retained.")
+          PY
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
