@@ -37,10 +37,10 @@ const hintStyle = document.createElement('style');
 hintStyle.textContent = `
 .rui-interaction-hint { animation: ruiHintGlow 2.8s ease-in-out infinite; }
 @keyframes ruiHintGlow {
-    0%, 100% { text-shadow: 0 0 2px rgba(210,210,210,.15), 0 0 7px rgba(220,220,220,.108); }
-    50% { text-shadow: 0 0 3px rgba(200,200,200,.48), 0 0 11px rgba(215,215,215,.39), 0 0 22px rgba(230,230,230,.27); }
+    0%, 100% { text-shadow: 0 0 2px rgba(210,210,210,.18), 0 0 7px rgba(220,220,220,.1296); }
+    50% { text-shadow: 0 0 3px rgba(200,200,200,.576), 0 0 11px rgba(215,215,215,.468), 0 0 22px rgba(230,230,230,.324); }
 }
-@media (prefers-reduced-motion: reduce) { .rui-interaction-hint { animation: none; text-shadow: 0 0 8px rgba(215,215,215,.3); } }
+@media (prefers-reduced-motion: reduce) { .rui-interaction-hint { animation: none; text-shadow: 0 0 8px rgba(215,215,215,.36); } }
 `;
 document.head.appendChild(hintStyle);
 interactionHint.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Manrope,sans-serif;font-size:14px;font-weight:300;letter-spacing:.03em;color:#fff;filter:blur(.3px);pointer-events:none;z-index:1001;opacity:1;transition:opacity .7s ease';
