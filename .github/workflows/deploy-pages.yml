@@ -13,6 +13,7 @@ on:
       - "assets/wind.js"
       - "assets/guestbook-project.svg"
       - "assets/guestbook/**"
+      - "assets/local-media/**"
 
 permissions:
   contents: read
@@ -57,6 +58,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pil ffmpeg
+
+      - name: Restore local portfolio media
+        run: cp -R assets/local-media/. site/
 
       - name: Optimize HD images and animations
         run: python3 scripts/optimize-media.py site
