@@ -3,8 +3,9 @@
     const width=image.closest('.slideshow-container')?.getBoundingClientRect().width || image.parentElement?.getBoundingClientRect().width || document.documentElement.clientWidth;
     image.sizes=Math.ceil(width)+'px';
   };
+  const imageSizer=new ResizeObserver(entries=>{for(const {target} of entries)target.querySelectorAll('img[srcset]').forEach(size);});
   const transfer = element => {
-    if(element.dataset.srcset){size(element);element.srcset=element.dataset.srcset;delete element.dataset.srcset;}
+    if(element.dataset.srcset){size(element);element.srcset=element.dataset.srcset;delete element.dataset.srcset;imageSizer.observe(element.closest('.slideshow-container')||element.parentElement);}
     if(element.dataset.src){element.src=element.dataset.src;delete element.dataset.src;return true;}return false;
   };
   const command=(frame,method,value)=>frame.contentWindow?.postMessage(JSON.stringify({method,value}),'https://player.vimeo.com');
