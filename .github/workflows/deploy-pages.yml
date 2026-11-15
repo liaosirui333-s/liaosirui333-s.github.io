@@ -62,6 +62,11 @@ jobs:
       - name: Restore local portfolio media
         run: cp -R assets/local-media/. site/
 
+      - name: Restore local House animation links
+        run: |
+          sed -i 's#https://rui-portfolio-2026.liaosirui3.chatgpt.site/house/h5.gif#/house/h5.gif#g' site/design/index.html
+          sed -i 's#https://rui-portfolio-2026.liaosirui3.chatgpt.site/house/h6.gif#/house/h6.gif#g' site/design/index.html
+
       - name: Optimize HD images and animations
         run: python3 scripts/optimize-media.py site
 
