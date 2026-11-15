@@ -8,7 +8,10 @@ on:
     paths:
       - ".github/workflows/deploy-pages.yml"
       - "scripts/prepare-portfolio.py"
+      - "scripts/optimize-media.py"
       - "assets/media.js"
+      - "assets/wind.js"
+      - "assets/guestbook-project.svg"
       - "assets/guestbook/**"
 
 permissions:
@@ -50,59 +53,23 @@ jobs:
           printf 'liaosirui.online\n' > site/CNAME
           touch site/.nojekyll
 
-      - name: Install image optimizer
+      - name: Install media tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y webp
+          sudo apt-get install -y python3-pil ffmpeg
 
-      - name: Optimize still images
-        shell: bash
-        run: |
-          find site -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 |
-          while IFS= read -r -d '' image; do
-            cwebp -quiet -q 78 -m 6 "$image" -o "${image}.webp"
-          done
-          python3 - <<'PY'
-          from pathlib import Path
-          from urllib.parse import quote
-          import re
-
-          root = Path("site")
-          origin = "https://rui-portfolio-2026.liaosirui3.chatgpt.site/"
-          replacements = {}
-          for converted in root.rglob("*.webp"):
-              original = Path(str(converted)[:-5])
-              if not original.is_file():
-                  continue
-              old = original.relative_to(root).as_posix()
-              new = "/" + quote(converted.relative_to(root).as_posix())
-              # Match complete paths, never a basename shared by other folders.
-              for path in (old, quote(old)):
-                  replacements[path] = new
-                  replacements["/" + path] = new
-                  replacements[origin + path] = new
-
-          pattern = re.compile(
-              r"(?<![A-Za-z0-9_./%:-])(?:"
-              + "|".join(re.escape(key) for key in sorted(replacements, key=len, reverse=True))
-              + r")(?![A-Za-z0-9_./%:-])"
-          )
-          for page in root.rglob("*"):
-              if page.is_file() and page.suffix in {".html", ".css", ".js"}:
-                  source = page.read_text()
-                  # One pass prevents .webp.webp, even with duplicate basenames.
-                  page.write_text(pattern.sub(lambda match: replacements[match.group()], source))
-          # Keep originals for metadata URLs, dynamic references, and old caches.
-          print(f"Updated {len(replacements)} exact image paths; originals retained.")
-          PY
+      - name: Optimize HD images and animations
+        run: python3 scripts/optimize-media.py site
 
       - name: Prepare fast media and canonical navigation
         run: |
           cp assets/media.js site/media.js
+          cp assets/wind.js site/wind.js
+          cp assets/guestbook-project.svg site/guestbook-project.svg
           python3 scripts/prepare-portfolio.py site
           test -f site/design/index.html
           mkdir -p site/guestbook
-          cp assets/guestbook/index.html assets/guestbook/guest.css assets/guestbook/guest.js site/guestbook/
+          cp -R assets/guestbook/. site/guestbook/
           test -f site/guestbook/index.html
 
       - name: Configure GitHub Pages

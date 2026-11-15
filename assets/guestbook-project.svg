@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050">
+<defs><filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-opacity=".17"/></filter></defs>
+<rect width="1600" height="1050" fill="white"/>
+<g font-family="Arial,sans-serif" fill="#3a3a3a" font-size="20"><text x="45" y="50">leave a note ~｡:*</text><text x="748" y="50">11:14 PM</text><text x="1510" y="50" text-decoration="underline">back</text></g>
+<g stroke="#a4a4a4" fill="white"><rect x="655" y="96" width="290" height="24"/><rect x="655" y="126" width="290" height="60"/><rect x="705" y="195" width="42" height="25"/><rect x="879" y="195" width="66" height="31"/></g>
+<g fill="#333" font-family="Arial,sans-serif" font-size="17"><text x="655" y="215">2 + 3 =</text><text x="890" y="216">Send</text></g>
+<g filter="url(#shadow)" font-family="Courier New,monospace" font-size="23" fill="#383838">
+<rect x="205" y="395" width="300" height="140" rx="22" fill="#B0E147"/><text x="226" y="431" font-size="17">hello</text><text x="226" y="476">a little note ~</text>
+<rect x="880" y="345" width="335" height="135" rx="22" fill="#a1d5fb"/><text x="903" y="382" font-size="17">a visitor</text><text x="903" y="430">♡ hi Rui</text>
+<rect x="635" y="665" width="280" height="132" rx="22" fill="#FFEA21"/><text x="657" y="702" font-size="17">guestbook</text><text x="657" y="750">leave a note</text>
+</g>
+</svg>
