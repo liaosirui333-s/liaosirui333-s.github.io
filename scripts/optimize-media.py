@@ -65,6 +65,7 @@ for original,info in manifest.items():
         from urllib.parse import unquote
         replacements[unquote(value)]=info['url']
 pattern=re.compile(r'(?<![A-Za-z0-9_./%:-])(?:'+'|'.join(re.escape(key) for key in sorted(replacements,key=len,reverse=True))+r')(?![A-Za-z0-9_./%:-])')
+if not replacements:pattern=re.compile(r'(?!)')
 for path in root.rglob('*'):
     if path.is_file() and path.suffix in {'.html','.css','.js'}:
         source=path.read_text();path.write_text(pattern.sub(lambda m:replacements[m.group()],source))
