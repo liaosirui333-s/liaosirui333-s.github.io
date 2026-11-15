@@ -37,8 +37,8 @@ const hintStyle = document.createElement('style');
 hintStyle.textContent = `
 .rui-interaction-hint { animation: ruiHintGlow 2.8s ease-in-out infinite; }
 @keyframes ruiHintGlow {
-    0%, 100% { text-shadow: 0 0 2px rgba(210,210,210,.216), 0 0 7px rgba(220,220,220,.15552); }
-    50% { text-shadow: 0 0 3px rgba(200,200,200,.6912), 0 0 11px rgba(215,215,215,.5616), 0 0 22px rgba(230,230,230,.3888); }
+    0%, 100% { color: #fff; text-shadow: 0 0 2px rgba(210,210,210,.216), 0 0 7px rgba(220,220,220,.15552); }
+    50% { color: #d7d7d7; text-shadow: 0 0 3px rgba(200,200,200,.6912), 0 0 11px rgba(215,215,215,.5616), 0 0 22px rgba(230,230,230,.3888); }
 }
 @media (prefers-reduced-motion: reduce) { .rui-interaction-hint { animation: none; text-shadow: 0 0 8px rgba(215,215,215,.432); } }
 `;
