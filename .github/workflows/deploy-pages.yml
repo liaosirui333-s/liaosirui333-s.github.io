@@ -7,6 +7,8 @@ on:
       - main
     paths:
       - ".github/workflows/deploy-pages.yml"
+      - "scripts/prepare-portfolio.py"
+      - "assets/media.js"
 
 permissions:
   contents: read
@@ -24,13 +26,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Check out deployment helpers
+        uses: actions/checkout@v4
+
       - name: Download the landing page and portfolio
         shell: bash
         run: |
           mkdir -p site
           wget --page-requisites --convert-links --adjust-extension --no-host-directories --directory-prefix site \
             https://rui-portfolio-2026.liaosirui3.chatgpt.site/ \
-            https://rui-portfolio-2026.liaosirui3.chatgpt.site/index2 || true
+            https://rui-portfolio-2026.liaosirui3.chatgpt.site/index2 \
+            https://rui-portfolio-2026.liaosirui3.chatgpt.site/guestbook/ || true
           mkdir -p site/js
           wget -q -O site/js/three.module.js https://rui-portfolio-2026.liaosirui3.chatgpt.site/js/three.module.js
           test -s site/js/three.module.js
@@ -88,6 +94,13 @@ jobs:
           # Keep originals for metadata URLs, dynamic references, and old caches.
           print(f"Updated {len(replacements)} exact image paths; originals retained.")
           PY
+
+      - name: Prepare fast media and canonical navigation
+        run: |
+          cp assets/media.js site/media.js
+          python3 scripts/prepare-portfolio.py site
+          test -f site/design/index.html
+          test -f site/guestbook/index.html
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
