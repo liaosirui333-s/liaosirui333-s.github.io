@@ -12,6 +12,7 @@
   };
   const play = (element) => {
     if (element.tagName === 'IFRAME') {
+      command(element, 'setMuted', true);
       command(element, 'setVolume', 0);
       command(element, 'setLoop', true);
       command(element, 'play');
@@ -23,6 +24,15 @@
     }
   };
   const visiblePlayers = new Set();
+  window.addEventListener('message', event => {
+    if (event.origin !== 'https://player.vimeo.com') return;
+    let data = event.data;
+    try { if (typeof data === 'string') data = JSON.parse(data); } catch { return; }
+    if (data?.event !== 'ready') return;
+    for (const frame of visiblePlayers) {
+      if (frame.tagName === 'IFRAME' && frame.contentWindow === event.source) play(frame);
+    }
+  });
   const playback = new IntersectionObserver(entries => {
     for (const {target, isIntersecting} of entries) {
       if (isIntersecting && !document.hidden) {
