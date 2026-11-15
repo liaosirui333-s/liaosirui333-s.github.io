@@ -8,7 +8,7 @@ import { OrbitControls } from 'https://cdn.skypack.dev/three@0.136.0/examples/js
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xFFFFFF); // 设置背景颜色
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 4000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true; // 启用阴影
@@ -33,11 +33,12 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // 添加地面
-const planeGeometry = new THREE.PlaneGeometry(200, 200);
+const GROUND_Y = -70;
+const planeGeometry = new THREE.PlaneGeometry(3000, 3000);
 const planeMaterial = new THREE.ShadowMaterial({ opacity: 1, color: 0x379FFF });
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -Math.PI / 2;
-plane.position.y = -10;
+plane.position.y = GROUND_Y;
 plane.receiveShadow = true; // 地面接收阴影
 planeMaterial.needsUpdate = true;
 planeMaterial.depthWrite = false; // Invisible ground must not clip falling drops.
@@ -58,8 +59,33 @@ scene.add(cylinder1);
 scene.add(cylinder2);
 
 
-// 设置相机位置
-camera.position.set(0, 50, 300);
+// Choose a fresh viewing angle on every page load, without clipping the scene.
+let previousAzimuth = NaN;
+try { previousAzimuth = parseFloat(sessionStorage.getItem('rui-last-view-angle')); } catch {}
+let azimuth;
+for (let attempt = 0; attempt < 24; attempt++) {
+    azimuth = Math.random() * Math.PI * 2;
+    const separation = Math.abs(Math.atan2(Math.sin(azimuth - previousAzimuth), Math.cos(azimuth - previousAzimuth)));
+    if (Math.abs(Math.cos(azimuth)) > 0.24 && (!Number.isFinite(previousAzimuth) || separation > 0.38)) break;
+}
+const elevation = (8 + Math.random() * 38) * Math.PI / 180;
+const direction = new THREE.Vector3(Math.sin(azimuth) * Math.cos(elevation), Math.sin(elevation), Math.cos(azimuth) * Math.cos(elevation));
+const right = new THREE.Vector3(Math.cos(azimuth), 0, -Math.sin(azimuth));
+const up = new THREE.Vector3().crossVectors(direction, right);
+controls.target.set(0, 20, 20);
+const verticalTangent = Math.tan(camera.fov * Math.PI / 360);
+const horizontalTangent = verticalTangent * camera.aspect;
+let distance = 230;
+for (const x of [-340, 340]) for (const y of [-80, 115]) for (const z of [-90, 130]) {
+    const offset = new THREE.Vector3(x, y, z).sub(controls.target);
+    const fit = Math.max(Math.abs(offset.dot(right)) / horizontalTangent, Math.abs(offset.dot(up)) / verticalTangent);
+    distance = Math.max(distance, offset.dot(direction) + fit * 1.12);
+}
+distance *= 1 + Math.random() * 0.08;
+camera.position.copy(controls.target).addScaledVector(direction, distance);
+controls.maxDistance = Math.max(1000, distance * 1.5);
+controls.update();
+try { sessionStorage.setItem('rui-last-view-angle', String(azimuth)); } catch {}
 renderer.render(scene, camera);
 
 const points = [
@@ -99,27 +125,32 @@ document.addEventListener('mousemove', function(event) {
     points[1].x = xPosition; // 更新中点的 x 位置
 });
 
-// Rain keeps falling through the scene rather than collecting on a fixed floor.
+// Keep the original rhythm: one drop every 400ms, falling one unit per frame.
 const raindropMaterial = new THREE.MeshBasicMaterial({ color: 0x379FFF });
 const raindropGeometry = new THREE.SphereGeometry(0.5, 6, 6);
 const rainGroup = new THREE.Group();
 scene.add(rainGroup);
-const rainClock = new THREE.Clock();
 const normal = () => Math.sqrt(-2 * Math.log(Math.max(Math.random(), 0.000001))) * Math.cos(Math.random() * Math.PI * 2);
 
-function createRaindrop(initial = false) {
+// Settled drops stay on the ground. A soft spatial distribution has no box edge.
+const settledCapacity = 2000;
+const settledPositions = new Float32Array(settledCapacity * 3);
+const settledGeometry = new THREE.BufferGeometry();
+settledGeometry.setAttribute('position', new THREE.BufferAttribute(settledPositions, 3));
+settledGeometry.setDrawRange(0, 0);
+const settledRain = new THREE.Points(settledGeometry, new THREE.PointsMaterial({ color: 0x379FFF, size: 1.3 }));
+settledRain.frustumCulled = false;
+scene.add(settledRain);
+let settledCount = 0;
+let settledIndex = 0;
+
+function createRaindrop() {
     if (document.hidden || rainGroup.children.length >= 180) return;
     const drop = new THREE.Mesh(raindropGeometry, raindropMaterial);
-    // A soft distribution has no hard rectangular sides or front/back boundary.
-    drop.position.set(normal() * 245, initial ? 130 - Math.random() * 320 : 130 + Math.random() * 30, normal() * 58);
-    drop.userData.speed = 25 + Math.random() * 18;
-    drop.userData.driftX = 1.5 + normal() * 2;
-    drop.userData.driftZ = normal() * 1.5;
-    drop.userData.bottom = -245 - Math.random() * 100;
+    drop.position.set(normal() * 245, 100, normal() * 58);
     rainGroup.add(drop);
 }
-for (let i = 0; i < 70; i++) createRaindrop(true);
-setInterval(() => createRaindrop(), 140);
+setInterval(createRaindrop, 400);
 
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -128,12 +159,9 @@ window.addEventListener('resize', () => {
 });
 
 // 动画中更新线的中点位置以模拟风的效果
-let lastWindFrame = 0;
 function animate(timestamp = 0) {
     requestAnimationFrame(animate);
-    if (document.hidden || timestamp - lastWindFrame < 33) return;
-    lastWindFrame = timestamp;
-    const rainDelta = Math.min(rainClock.getDelta(), 0.06);
+    if (document.hidden) return;
 
     // 获取当前时间
     const time = Date.now() * 0.001;
@@ -168,10 +196,18 @@ function animate(timestamp = 0) {
     // 更新雨滴位置
     for (let i = rainGroup.children.length - 1; i >= 0; i--) {
         const drop = rainGroup.children[i];
-        drop.position.y -= drop.userData.speed * rainDelta;
-        drop.position.x += (drop.userData.driftX + Math.sin(time * 0.7) * 1.5) * rainDelta;
-        drop.position.z += drop.userData.driftZ * rainDelta;
-        if (drop.position.y < drop.userData.bottom) rainGroup.remove(drop);
+        drop.position.y -= 1;
+        if (drop.position.y <= GROUND_Y) {
+            const index = settledIndex * 3;
+            settledPositions[index] = drop.position.x;
+            settledPositions[index + 1] = GROUND_Y + 0.02;
+            settledPositions[index + 2] = drop.position.z;
+            settledIndex = (settledIndex + 1) % settledCapacity;
+            settledCount = Math.min(settledCount + 1, settledCapacity);
+            settledGeometry.setDrawRange(0, settledCount);
+            settledGeometry.attributes.position.needsUpdate = true;
+            rainGroup.remove(drop);
+        }
     }
     controls.update();
     renderer.render(scene, camera);
