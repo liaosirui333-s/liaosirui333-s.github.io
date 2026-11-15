@@ -10,6 +10,7 @@ on:
       - "scripts/prepare-portfolio.py"
       - "scripts/optimize-media.py"
       - "assets/media.js"
+      - "assets/wind.js"
       - "assets/guestbook-project.svg"
       - "assets/guestbook/**"
 
@@ -63,6 +64,7 @@ jobs:
       - name: Prepare fast media and canonical navigation
         run: |
           cp assets/media.js site/media.js
+          cp assets/wind.js site/wind.js
           cp assets/guestbook-project.svg site/guestbook-project.svg
           python3 scripts/prepare-portfolio.py site
           test -f site/design/index.html
