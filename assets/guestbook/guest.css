@@ -1,0 +1,168 @@
+.manrope {
+    font-family: "Manrope", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+*{
+    margin: 0;
+    padding: 0;
+}
+html, body {
+    width: 100%;
+    font-family: Manrope, sans-serif;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+    color: #3a3a3a;
+  
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+overflow-x: hidden;
+transition: all 0.8s ease;
+}
+
+header {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+ font-size: 13px;
+    text-align: center;
+}
+nav{padding: 1rem;}
+nav ul {
+    font-weight: 400;
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 1rem;
+}
+
+
+a {
+   color: #252525;
+}
+
+a:focus, a:hover {
+    text-decoration: underline;
+}
+
+button, input {
+    display: inline;
+    text-align: left;
+    margin: 0 0 2px;
+
+    line-height: 1;
+    border: 1px solid #a4a4a4;
+    font-size: 13px; 
+}
+
+input, textarea {
+    width: 100%; /* 设置相同的宽度 */
+padding:0;
+    line-height: inherit;
+  
+    border-bottom: 1px solid #a4a4a4;
+
+}
+
+button::-moz-focus-inner, input::-moz-focus-inner {
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+}
+
+button {
+    width: auto;
+    padding: 5px;
+   background-color: white;
+    cursor: pointer;
+    float: right;
+}
+
+input:focus, textarea:focus {
+    color: #333;
+}
+
+button:focus, button:hover {
+    border-radius: 5px;
+}
+
+input[name="math"] {
+    width: 30px;
+}
+
+#guestbook {
+
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+form {
+    display: block;
+    padding: 1rem;
+    position: absolute;
+    top: 50px;
+   
+    height: 10vh; /* 使用视口高度单位 */
+    font-size: 11px;
+}
+
+.guest-item {
+    font-size: 12px;
+    padding: 10px;
+    width: auto;
+    min-height: 4rem;
+  
+    border-radius: 15px;
+
+font-family: 'Courier New', Courier, monospace;
+
+box-shadow: 0px 0px 3.8px rgba(0, 0, 0, 0.25), inset -1px -1px 4px rgba(0, 0, 0, 0.25);
+
+
+}
+
+.guest-name, .guest-timestamp {
+    font-size: 10px;
+}
+
+
+
+
+.message-error, .message-warning {
+    padding: 5px 10px;
+}
+
+.message-warning {
+    background-color: #DBFFD8;
+}
+
+.message-error:first-child, .message-warning:first-child {
+    border-top: none;
+}
+
+
+/* Keep the original floating-note layout with accessible form status. */
+html,body{min-height:100svh}
+form{z-index:1001;width:200px;max-width:calc(100vw - 32px)}
+input,textarea{box-sizing:border-box}
+.trap{position:absolute;left:-10000px}
+#status{font-size:10px;margin-top:5px;max-width:200px}
+.guest-item{max-width:min(320px,calc(100vw - 32px));overflow-wrap:anywhere;cursor:pointer}
+.guest-liuyan{white-space:pre-wrap}
+.credits{font-size:10px;position:fixed;bottom:5px;width:100%;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;z-index:1002}
+#more{position:fixed;bottom:28px;right:16px;z-index:1002}
+button[hidden]{display:none}
+button:disabled{opacity:.5}
+body{justify-content:flex-start}

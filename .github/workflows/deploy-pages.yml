@@ -9,6 +9,7 @@ on:
       - ".github/workflows/deploy-pages.yml"
       - "scripts/prepare-portfolio.py"
       - "assets/media.js"
+      - "assets/guestbook/**"
 
 permissions:
   contents: read
@@ -100,6 +101,8 @@ jobs:
           cp assets/media.js site/media.js
           python3 scripts/prepare-portfolio.py site
           test -f site/design/index.html
+          mkdir -p site/guestbook
+          cp assets/guestbook/index.html assets/guestbook/guest.css assets/guestbook/guest.js site/guestbook/
           test -f site/guestbook/index.html
 
       - name: Configure GitHub Pages
