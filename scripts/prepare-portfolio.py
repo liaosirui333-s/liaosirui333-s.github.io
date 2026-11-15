@@ -123,7 +123,7 @@ for filename, canonical in [('index.html', '/'), ('index2.html', '/design/')]:
         # Reserve space before lazy images arrive, including after project shuffle.
         html = html.replace('</head>', '<style>.slideshow-container{min-height:220px}.Slides.sliding{min-height:180px}img[data-src]{min-height:180px}.Slides.sliding img{max-width:100%}</style>\n</head>')
     else:
-        html = re.sub(r'<script type="module" src="wind.js"></script>', '<script>const startWind=()=>import("/wind.js").catch(()=>{});if("requestIdleCallback" in window)requestIdleCallback(startWind,{timeout:1600});else setTimeout(startWind,600);</script>', html)
+        html = re.sub(r'<script type="module" src="wind.js"></script>', '<script>const startWind=()=>import("/wind.js?v=20261115-rain-1").catch(()=>{});if("requestIdleCallback" in window)requestIdleCallback(startWind,{timeout:1600});else setTimeout(startWind,600);</script>', html)
     html = re.sub(r'(src|href)="index\.(js|css)(?:%3F[^" ]*|\?[^" ]*)?"', lambda m: m[1] + '="/index.' + m[2] + '?v=20261114-2"', html)
     # Old platform links resolve to the user's domain when opened in a browser.
     redirect = '<script>if(location.hostname.endsWith("chatgpt.site"))location.replace("https://liaosirui.online' + canonical + '"+location.search+location.hash);</script>'
@@ -139,7 +139,7 @@ if marker in js:
 if 'portfolio-counts' not in js:
     js += '''
 // portfolio-counts
-document.addEventListener('DOMContentLoaded',()=>{const projects=[...document.querySelectorAll('.project-list .project:not([hidden])')];document.querySelectorAll('.filter-list .tag').forEach(tag=>{const count=tag.querySelector('sup');if(count&&tag.id!=='all')count.textContent=' '+projects.filter(project=>(project.dataset.tags||'').split(',').includes(tag.id)).length;});});
+document.addEventListener('DOMContentLoaded',()=>{document.querySelector('.tagg')?.addEventListener('click',toggleGrid);const projects=[...document.querySelectorAll('.project-list .project:not([hidden])')];document.querySelectorAll('.filter-list .tag').forEach(tag=>{const count=tag.querySelector('sup');if(count&&tag.id!=='all')count.textContent=' '+projects.filter(project=>(project.dataset.tags||'').split(',').includes(tag.id)).length;});});
 '''
 script.write_text(js)
 
