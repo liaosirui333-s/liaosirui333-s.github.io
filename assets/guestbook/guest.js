@@ -5,7 +5,7 @@
   const button = form.querySelector('button');
   const notes = document.querySelector('#notes');
   const more = document.querySelector('#more');
-  let challenge, before;
+  let challenge;
   let highestZIndex = 1000;
   const colors = ['#B0E147', 'rgb(161, 213, 251)', '#E6E6E6', '#FFEA21', '#FCFFEB'];
   function place(card) {
@@ -47,9 +47,9 @@
     }
   }
   async function load(reset=false) {
-    const data=await request(api + (reset || !before ? '' : '?before='+encodeURIComponent(before)));
-    if(reset)notes.replaceChildren();
-    render(data.entries);before=data.next;more.hidden=!before;
+    const data=await request(api);
+    notes.replaceChildren();
+    render(data.entries.slice(0,10));more.hidden=true;
     if(!notes.children.length) {
       const card=document.createElement('div');card.className='guest-item';
       const title=document.createElement('span');title.className='guest-xinming';title.textContent='Guestbook';
@@ -57,7 +57,6 @@
       card.append(title,text);notes.append(card);place(card);
     }
   }
-  more.addEventListener('click',async()=>{more.disabled=true;try{await load();}catch(error){status.textContent=error.message;}finally{more.disabled=false;}});
   form.addEventListener('submit',async event=>{
     event.preventDefault();if(!challenge)return;button.disabled=true;status.textContent='sending…';
     const data=new FormData(form);
