@@ -39,6 +39,11 @@ with ThreadPoolExecutor(max_workers=2) as pool:
 
 for path in sorted(root.rglob('*')):
     if not path.is_file() or path.suffix.lower() not in {'.gif','.mp4','.mov'} or path.name.endswith('.optimized.mp4'):continue
+    if path.suffix.lower()=='.gif':
+        with Image.open(path) as animation:
+            # Preserve transparent GIF artwork exactly; MP4 cannot carry alpha.
+            if 'transparency' in animation.info:
+                continue
     target=path.with_name(path.name+'.optimized.mp4')
     command=[ffmpeg,'-v','error','-nostdin','-y']
     if path.suffix.lower()=='.gif':command+=['-ignore_loop','1']
