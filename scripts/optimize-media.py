@@ -42,13 +42,16 @@ for path in sorted(root.rglob('*')):
     if path.suffix.lower()=='.gif':
         with Image.open(path) as animation:
             # Preserve transparent GIF artwork exactly; MP4 cannot carry alpha.
-            if 'transparency' in animation.info:
+            if 'transparency' in animation.info or animation.convert('RGBA').getchannel('A').getextrema()[0] < 255:
                 continue
     target=path.with_name(path.name+'.optimized.mp4')
     command=[ffmpeg,'-v','error','-nostdin','-y']
-    if path.suffix.lower()=='.gif':command+=['-ignore_loop','1']
     command+=['-i',str(path),'-map','0:v:0','-an','-c:v','libx264','-preset','medium','-crf','18','-threads','2','-vf','scale=trunc(iw/2)*2:trunc(ih/2)*2','-pix_fmt','yuv420p','-movflags','+faststart',str(target)]
-    subprocess.run(command,check=True)
+    result=subprocess.run(command,stderr=subprocess.PIPE,text=True)
+    if result.returncode:
+        target.unlink(missing_ok=True)
+        print(f'Keeping original media: {path.relative_to(root)} (encoder compatibility)')
+        continue
     use=target.stat().st_size<path.stat().st_size or path.suffix.lower()=='.mov'
     if use:manifest[url(path)]={'kind':'video','url':url(target),'original_bytes':path.stat().st_size,'bytes':target.stat().st_size}
     else:target.unlink()
