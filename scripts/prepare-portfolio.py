@@ -110,6 +110,8 @@ def media(match):
 for filename, canonical in [('index.html', '/'), ('index2.html', '/design/')]:
     page = ROOT / filename
     html = page.read_text()
+    # Remove the retired Twitter/X sentence from both About panels.
+    html = re.sub(r';\s*i have been wanting to write stories so i started that on\s*<a\b[^>]*href=["\']https?://(?:www\.)?(?:x\.com|twitter\.com)/[^"\']*["\'][^>]*>.*?</a>\.', '.', html, flags=re.I | re.S)
     # Cloudflare's injected challenge belongs to the source host, not the mirror.
     html = re.sub(r'<script>\(function\(\)\{function c\(\).*?</script>', '', html, flags=re.S)
     html = re.sub(r'<a\b[^>]*>', lambda m: render('a', {k: link(v) if k == 'href' else v for k, v in attrs(m.group())[1].items()}), html)
